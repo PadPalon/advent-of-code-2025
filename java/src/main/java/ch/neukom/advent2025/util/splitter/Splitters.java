@@ -8,6 +8,7 @@ public class Splitters {
     public static final Splitter COLON_SPLITTER = Splitter.on(':').trimResults().omitEmptyStrings();
     public static final Splitter PARAGRAPH_SPLITTER = Splitter.on("\n\n").trimResults().omitEmptyStrings();
     public static final Splitter NEWLINE_SPLITTER = Splitter.on("\n").trimResults().omitEmptyStrings();
+    public static final Splitter DASH_SPLITTER = Splitter.on("-").trimResults().omitEmptyStrings();
 
     private Splitters() {
     }
