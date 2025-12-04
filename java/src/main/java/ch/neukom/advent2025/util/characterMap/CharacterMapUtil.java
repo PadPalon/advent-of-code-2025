@@ -12,7 +12,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public class CharacterMapUtil {
@@ -48,8 +47,8 @@ public class CharacterMapUtil {
 
     private static Stream<List<Position>> buildDiagonalLines(int width, int height) {
         List<Position> topLeftBottomRightDiagonal = Streams.zip(
-            LongStream.range(0, width).boxed(),
-            LongStream.range(0, height).boxed(),
+            IntStream.range(0, width).boxed(),
+            IntStream.range(0, height).boxed(),
             Position::new
         ).toList();
 

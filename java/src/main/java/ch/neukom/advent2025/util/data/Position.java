@@ -1,6 +1,8 @@
 package ch.neukom.advent2025.util.data;
 
-public record Position(long x, long y) {
+import java.util.stream.Stream;
+
+public record Position(int x, int y) {
     public Position move(Direction direction) {
         return switch (direction) {
             case NORTH -> new Position(x(), y() - 1);
@@ -15,5 +17,18 @@ public record Position(long x, long y) {
             && y() >= 0
             && x() < width
             && y() < height;
+    }
+
+    public Stream<Position> getAdjacentPositions() {
+        return Stream.of(
+            new Position(x - 1, y - 1),
+            new Position(x - 1, y),
+            new Position(x - 1, y + 1),
+            new Position(x, y - 1),
+            new Position(x, y + 1),
+            new Position(x + 1, y - 1),
+            new Position(x + 1, y),
+            new Position(x + 1, y + 1)
+        );
     }
 }
