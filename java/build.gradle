@@ -1,5 +1,3 @@
-import java.util.stream.Collectors
-
 plugins {
     id 'java'
     id 'idea'
@@ -28,16 +26,19 @@ test {
 }
 
 tasks.register('setup-java-puzzle') {
+    def srcCanonicalPath = sourceSets.main.java.srcDirs[0].canonicalPath
+    def resourcesCanonicalPath = sourceSets.main.resources.srcDirs[0].canonicalPath
+
     doLast {
         println('> Enter the day you want to solve: ')
         def puzzleDay = System.in.newReader().readLine()
         def packageName = ['ch', 'neukom', 'advent2025', 'day' + puzzleDay].join(File.separator)
-        def srcFolder = [sourceSets.main.java.srcDirs[0].canonicalPath, packageName].join(File.separator)
-        mkdir srcFolder
-        def resourcesFolder = [sourceSets.main.resources.srcDirs[0].canonicalPath, packageName].join(File.separator)
-        mkdir resourcesFolder
+        def srcFolder = [srcCanonicalPath, packageName].join(File.separator)
+        new File(srcFolder).mkdir()
+        def resourcesFolder = [resourcesCanonicalPath, packageName].join(File.separator)
+        new File(resourcesFolder).mkdir()
 
-        def input = getPuzzleInput(puzzleDay)
+        def input = PuzzleInput.getPuzzleInput(puzzleDay)
         new File([resourcesFolder, 'input'].join(File.separator)).write(input)
         new File([resourcesFolder, 'test'].join(File.separator)).write('')
 
@@ -48,17 +49,5 @@ tasks.register('setup-java-puzzle') {
                 .replace('packagename', packageName.replace(File.separator, '.'))
         new File([srcFolder, 'Part1.java'].join(File.separator)).write(puzzleTemplate.replace('ClassName', 'Part1'))
         new File([srcFolder, 'Part2.java'].join(File.separator)).write(puzzleTemplate.replace('ClassName', 'Part2'))
-    }
-}
-
-private static String getPuzzleInput(String puzzleDay) {
-    String sessionKey = new File('.session-key').text.trim()
-    if (sessionKey != null && !sessionKey.isEmpty()) {
-        def puzzleInputUrl = "https://adventofcode.com/2025/day/%s/input".formatted(puzzleDay)
-        def inputConnection = new URI(puzzleInputUrl).toURL().openConnection()
-        inputConnection.addRequestProperty("Cookie", "session=%s".formatted(sessionKey))
-        return new BufferedReader(new InputStreamReader(inputConnection.getInputStream())).lines().collect(Collectors.joining("\n"))
-    } else {
-        return ''
     }
 }
