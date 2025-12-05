@@ -17,7 +17,7 @@ dependencies {
     implementation "com.google.guava:guava:${guavaVersion}"
     implementation "com.google.code.gson:gson:${gsonVersion}"
 
-    testImplementation 'org.testng:testng:7.1.0'
+    testImplementation 'org.testng:testng:7.11.0'
     testImplementation 'com.google.truth:truth:1.4.5'
 }
 
