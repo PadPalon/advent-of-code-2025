@@ -17,10 +17,11 @@ public class InputArrayReader extends InputResourceReader {
     }
 
     public <T> T[][] readIntoArray(Function<Symbol, T> creator, Class<T> type) {
-        return buildArray(creator, type, this::readInput, (int) getLineCount(), getFirstLine().length());
+        return buildArray(creator, type, this::readInput, (int) getLineCount(), (int) getMaxLineLength());
     }
 
-    public static <T> T[][] buildArray(Function<Symbol, T> creator, Class<T> type,
+    public static <T> T[][] buildArray(Function<Symbol, T> creator,
+                                       Class<T> type,
                                        Supplier<Stream<String>> inputSupplier,
                                        int lineCount,
                                        int columnCount) {

@@ -50,6 +50,14 @@ public class InputResourceReader implements Closeable, AutoCloseable {
         return readInput(filename).count();
     }
 
+    public long getMaxLineLength() {
+        return getMaxLineLength(filename);
+    }
+
+    public long getMaxLineLength(String filename) {
+        return readInput(filename).mapToLong(String::length).max().orElseThrow();
+    }
+
     private void openReader(String filename) {
         if (reader != null) {
             try {
