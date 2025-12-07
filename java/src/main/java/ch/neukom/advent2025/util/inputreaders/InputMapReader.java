@@ -6,6 +6,7 @@ import ch.neukom.advent2025.util.data.Position;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class InputMapReader extends InputResourceReader {
     public InputMapReader(Class<?> clazz) {
@@ -18,6 +19,10 @@ public class InputMapReader extends InputResourceReader {
 
     public Map<Position, Character> readIntoMap() {
         return CharacterMapUtil.buildCharacterMap(this);
+    }
+
+    public Map<Position, Character> filterIntoMap(Predicate<String> lineFilter) {
+        return CharacterMapUtil.buildFilteredCharacterMap(this, lineFilter);
     }
 
     public <T> Map<Position, T> readIntoMap(Function<Character, T> transformer) {

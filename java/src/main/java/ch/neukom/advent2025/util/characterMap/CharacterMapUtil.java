@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -79,26 +80,37 @@ public class CharacterMapUtil {
 
     public static <T> Map<Position, T> buildCharacterMap(InputResourceReader reader,
                                                          Function<Character, T> transformer) {
-        return buildCharacterMap(reader, ((position, character) -> transformer.apply(character)));
+        return buildCharacterMap(reader, ((_, character) -> transformer.apply(character)));
     }
 
     public static <T> Map<Position, T> buildCharacterMap(InputResourceReader reader,
                                                          BiFunction<Position, Character, T> transformer) {
         List<String> lines = reader.readInput().toList();
-        return buildCharacterMap(lines, transformer);
+        return buildCharacterMap(lines, transformer, _ -> true);
+    }
+
+    public static Map<Position, Character> buildFilteredCharacterMap(InputResourceReader reader,
+                                                                     Predicate<String> lineFilter) {
+        List<String> lines = reader.readInput().toList();
+        return buildCharacterMap(lines, (_, character) -> character, lineFilter);
     }
 
     public static <T> Map<Position, T> buildCharacterMap(List<String> lines,
-                                                         BiFunction<Position, Character, T> transformer) {
+                                                         BiFunction<Position, Character, T> transformer,
+                                                         Predicate<String> lineFilter) {
         int height = lines.size();
         int width = lines.getFirst().length();
         Map<Position, T> characterMap = Maps.newHashMap();
+        int actualY = 0;
         for (int y = 0; y < height; y++) {
             String line = lines.get(y);
-            for (int x = 0; x < width; x++) {
-                Character character = line.charAt(x);
-                Position position = new Position(x, y);
-                characterMap.put(position, transformer.apply(position, character));
+            if (lineFilter.test(line)) {
+                for (int x = 0; x < width; x++) {
+                    Character character = line.charAt(x);
+                    Position position = new Position(x, actualY);
+                    characterMap.put(position, transformer.apply(position, character));
+                }
+                actualY++;
             }
         }
         return characterMap;
