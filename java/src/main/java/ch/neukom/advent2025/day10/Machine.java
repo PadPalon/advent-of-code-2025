@@ -5,9 +5,14 @@ import ch.neukom.advent2025.util.splitter.Splitters;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.ssclab.pl.milp.*;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static java.lang.Double.NaN;
+import static org.ssclab.pl.milp.ConsType.EQ;
+import static org.ssclab.pl.milp.ConsType.INT;
 
 public class Machine {
     private final List<Button> buttons;
@@ -83,6 +88,65 @@ public class Machine {
                 .toList();
             buttonPresses++;
         }
+    }
+
+    public double findFewestButtonPressesJoltage() {
+        try {
+            return solveEquationSystem();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private double solveEquationSystem() throws Exception {
+        double[][] equations = setupEquations();
+        ListConstraints constraints = setupConstraints(equations);
+        LinearObjectiveFunction objectiveFunction = setupObjectiveFunction();
+        MILP equationSystem = new MILP(objectiveFunction, constraints);
+
+        SolutionType solutionType = equationSystem.resolve();
+        if (solutionType == SolutionType.OPTIMAL) {
+            Solution solution = equationSystem.getSolution();
+            return solution.getOptimumValue();
+        } else {
+            throw new IllegalStateException("No optimal solution found");
+        }
+    }
+
+    private double[][] setupEquations() {
+        double[][] data = new double[targetJoltages.length + 1][];
+        for (int row = 0; row < targetJoltages.length; row++) {
+            double[] values = new double[buttons.size()];
+            data[row] = values;
+            for (int column = 0; column < buttons.size(); column++) {
+                Button button = buttons.get(column);
+                values[column] = button.lights().contains(row) ? 1 : 0;
+            }
+        }
+        data[targetJoltages.length] = createOnesArray(buttons);
+        return data;
+    }
+
+    private ListConstraints setupConstraints(double[][] equations) throws LPException {
+        ListConstraints constraints = new ListConstraints();
+        for (int i = 0; i < equations.length; i++) {
+            constraints.add(new Constraint(
+                equations[i],
+                i < targetJoltages.length ? EQ : INT,
+                i < targetJoltages.length ? targetJoltages[i] : NaN
+            ));
+        }
+        return constraints;
+    }
+
+    private LinearObjectiveFunction setupObjectiveFunction() throws LPException {
+        return new LinearObjectiveFunction(createOnesArray(buttons), GoalType.MIN);
+    }
+
+    private double[] createOnesArray(List<?> sizeSource) {
+        double[] weights = new double[sizeSource.size()];
+        Arrays.fill(weights, 1);
+        return weights;
     }
 
     public record Light(boolean target, boolean on) {
